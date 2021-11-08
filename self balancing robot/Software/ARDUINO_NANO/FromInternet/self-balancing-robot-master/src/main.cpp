@@ -1,4 +1,4 @@
-
+//code with timer for stepper motors
 #if 0
 /*
    Self balancing robot
@@ -638,7 +638,7 @@ void loop() {
     digitalWrite(stepPin,LOW); 
     delayMicroseconds(500); 
   }
-  /*
+  
   delay(1000); // One second delay
   
   digitalWrite(dirPin,LOW); //Changes the rotations direction
@@ -650,7 +650,7 @@ void loop() {
     delayMicroseconds(500);
   }
   delay(1000);
-  */
+  
 }
 #endif
 
