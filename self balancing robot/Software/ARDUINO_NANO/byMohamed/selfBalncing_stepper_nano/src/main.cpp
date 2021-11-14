@@ -51,18 +51,18 @@ void setup() {
 void loop() {
 
 stepperL.setRPM(MOTOR_RPM);
-controller.move(100,0);
+controller.move(100,-100);
 MOTOR_RPM++;
-if(MOTOR_RPM>1000)MOTOR_RPM = 0;
-
-//delay(10000);
+if(MOTOR_RPM>500)MOTOR_RPM = 0;
 /*
+
     controller.rotate(90*5, 60*15);
     delay(1000);
     controller.rotate(-90*5, -30*15);
     delay(1000);
     controller.rotate(0, -30*15);
-    delay(30000);*/
+    delay(30000);
+    */
 }
 #endif
 
@@ -220,7 +220,6 @@ void loop() {
     delay(30000);
 }
 #endif
-
 
 #if test_IMU
 #include <Arduino.h>
