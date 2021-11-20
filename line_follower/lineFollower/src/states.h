@@ -11,7 +11,6 @@ typedef enum
     Left_Shifted,
     Left_Drift,
     OutOfPath, //no line detected
-
 } OnLineStates;
 
 int sensor_values[no_sensors];
@@ -43,6 +42,7 @@ void updateSensors(void)
     for (int i = Front; i < no_sensors; i++)
         sensor_values[i] = digitalRead(sensor_pins[i]);
 }
+
 void updateState()
 {
     if (sensor_values[Front] && sensor_values[Right1] && sensor_values[Left1])//100
@@ -66,7 +66,7 @@ void updateState()
     {
         state = Left_Shifted;
     }
-    else if (!sensor_values[Front] && !sensor_values[Right1] && sensor_values[Left1])
+    else if (!sensor_values[Front] && sensor_values[Right1] && !sensor_values[Left1])
     {
         state = Left_Drift;
     }
@@ -76,9 +76,9 @@ void updateState()
 
 void printReadings()
 {
-    Serial.print("S_R: ");
-    Serial.println(sensor_values[Front]);
     Serial.print("S_F: ");
+    Serial.println(sensor_values[Front]);
+    Serial.print("S_R: ");
     Serial.println(sensor_values[Right1]);
     Serial.print("S_L: ");
     Serial.println(sensor_values[Left1]);

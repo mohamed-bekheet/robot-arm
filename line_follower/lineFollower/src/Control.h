@@ -63,4 +63,16 @@ void updatePID(){
   prevE = E;
 }
 
+
+void printPID_out(void){
+    Serial.print("Error: ");
+    Serial.println(E);
+    Serial.print("OUTPUT: ");
+    Serial.println(controlOUT);
+    Serial.print("State: ");
+    Serial.println(state);
+    Serial.println("");
+
+    delay(500);
+}
 #endif
