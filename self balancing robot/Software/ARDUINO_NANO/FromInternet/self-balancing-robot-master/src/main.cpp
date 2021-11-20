@@ -4,6 +4,20 @@
 
 #if video_code
 
+
+#define Kp 15
+#define Ki 0
+#define Kd 0
+
+float E ;
+float derE ;
+float integE ;
+ 
+double prevE ;
+double deltaT;
+
+double curT = 0;
+double prevT;
 ///////////////////////////////////////////////////////////////////////////////////////
 //Terms of use
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -330,7 +344,17 @@ void loop()
     }
 
 
-    angle_gyro = ypr[2];
+angle_gyro = ypr[2];
+
+curT = micros();    //rev
+deltaT = curT-prevT;
+E = angle_gyro;
+derE = (E - prevE) / deltaT;
+integE = integE + E * deltaT; 
+pid_output = Kp * E + Kd * derE + Ki * integE;
+prevT = curT;
+
+/*
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //PID controller calculations
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -382,7 +406,7 @@ void loop()
 
     Serial.print("pid_output2");
     Serial.println(pid_output);
-
+*/
     pid_output_left = pid_output;  //Copy the controller output to the pid_output_left variable for the left motor
     pid_output_right =  pid_output; //Copy the controller output to the pid_output_right variable for the right motor
 
@@ -390,7 +414,7 @@ void loop()
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Control calculations
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/*
     if (received_byte & B00000001)
     {                                      //If the first bit of the receive byte is set change the left and right variable to turn the robot to the left
         pid_output_left += turning_speed;  //Increase the left motor speed
@@ -426,7 +450,8 @@ void loop()
         else
             pid_setpoint = 0; //If the PID setpoint is smaller then 0.5 or larger then -0.5 set the setpoint to 0
     }
-
+*/
+/*
     //The self balancing point is adjusted when there is not forward or backwards movement from the transmitter. This way the robot will always find it's balancing point
     if (pid_setpoint == 0)
     { //If the setpoint is zero degrees
@@ -435,7 +460,7 @@ void loop()
         if (pid_output > 0)
             self_balance_pid_setpoint -= 0.0015; //Decrease the self_balance_pid_setpoint if the robot is still moving backwards
     }
-
+*/
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
