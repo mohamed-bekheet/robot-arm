@@ -18,7 +18,6 @@ static int E;//error
 static int prevE;//previous error
 
 extern float controlOUT = 0;//used to control the motor
-extern int willMove = 1;//used to approve for robot to move
 
 void initPID(float kP,float kD,float kI){
     _KP=kP;
