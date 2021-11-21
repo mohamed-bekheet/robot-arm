@@ -6,7 +6,7 @@
 //in this system we use just 3 sensors thus the error will be simple and its region will be about
 // 2~-2 best is 0
 
-//in case us wanna to update those values from esp server remove static and access them in hte main loop
+//in case us wanna update those values from esp server remove static and access them in hte main loop
 static float _KP;
 static float _KD;
 static float _KI;
