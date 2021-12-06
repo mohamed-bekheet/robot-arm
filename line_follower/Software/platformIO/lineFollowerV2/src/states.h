@@ -2,6 +2,8 @@
 #include "defines.h"
 #ifndef _states_H_
 #define _states_H_
+
+
 typedef enum
 {
     Finished,
@@ -13,7 +15,8 @@ typedef enum
     OutOfPath, //no line detected
 } OnLineStates;
 
-int sensor_values[no_sensors];
+extern OnLineStates state = Finished;
+
 
 //best to be as an struct to handle all data related to sensor liske pin and value
 //if you need to add a new sensor write its position name and edit in update sate function
@@ -24,10 +27,11 @@ typedef enum
     Left1,
 } OnBoardSensor;
 
-extern OnLineStates state = Finished;
 OnBoardSensor sensor;
+int sensor_values[no_sensors];
 
-void init_State(void)
+
+void initSensors(void)
 {
     for (int i = 0; i < no_sensors; i++)
         pinMode(sensor_pins[i], INPUT); //initialize all pins as INPUT
@@ -57,7 +61,6 @@ void updateState()
     {
         state = Right_Shifted;
     }
-    
     else if (!sensor_values[Front] && !sensor_values[Right1] && sensor_values[Left1])
     {
         state = Right_Drift;//huge

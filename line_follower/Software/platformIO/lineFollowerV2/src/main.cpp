@@ -9,7 +9,7 @@ void setup() {
   Serial.begin(9600);
   #endif
   init_motor_pins();
-  init_State();
+  initSensors();
   initPID(40,0,0);//kp,kd,ki
   delay(2000);
 }

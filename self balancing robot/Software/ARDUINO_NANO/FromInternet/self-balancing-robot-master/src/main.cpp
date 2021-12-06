@@ -13,7 +13,7 @@ float E ;
 float derE ;
 float integE ;
  
-double prevE ;
+double prevE =0 ;
 double deltaT;
 
 double curT = 0;
@@ -168,9 +168,6 @@ void setup()
         Fastwire::setup(400, true);
     #endif
 
-    Serial.begin(9600);
-    while (!Serial); // wait for Leonardo enumeration, others continue immediately
-
     // initialize device
     Serial.println(F("Initializing I2C devices..."));
     mpu.initialize();
@@ -238,32 +235,7 @@ XAccel			YAccel				ZAccel			XGyro			YGyro			ZGyro
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-    if (Serial.available())
-    {                                  //If there is serial data available
-        received_byte = Serial.read(); //Load the received serial data in the received_byte variable
-        receive_counter = 0;           //Reset the receive_counter variable
-    }
-    if (receive_counter <= 25)
-        receive_counter++; //The received byte will be valid for 25 program loops (100 milliseconds)
-    else
-        received_byte = 0x00; //After 100 milliseconds the received byte is deleted
-    Serial.println("hi after controller!");
 
-    //Load the battery voltage to the battery_voltage variable.
-    //85 is the voltage compensation for the diode.
-    //Resistor voltage divider => (3.3k + 3.3k)/2.2k = 2.5
-    //12.5V equals ~5V @ Analog 0.
-    //12.5V equals 1023 analogRead(0).
-    //1250 / 1023 = 1.222.
-    //The variable battery_voltage holds 1050 if the battery voltage is 10.5V.
-    /*
-  battery_voltage = (analogRead(0) * 1.222) + 85;
-  
-  if(battery_voltage < 1050 && battery_voltage > 800){                      //If batteryvoltage is below 10.5V and higher than 8.0V
-    digitalWrite(13, HIGH);                                                 //Turn on the led if battery voltage is to low
-    low_bat = 1;                                                            //Set the low_bat variable to 1
-  }
-*/
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Angle calculations
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -345,7 +317,7 @@ void loop()
 
 
 angle_gyro = ypr[2];
-
+/*
 curT = micros();    //rev
 deltaT = curT-prevT;
 E = angle_gyro;
@@ -353,6 +325,8 @@ derE = (E - prevE) / deltaT;
 integE = integE + E * deltaT; 
 pid_output = Kp * E + Kd * derE + Ki * integE;
 prevT = curT;
+*/
+
 
 /*
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -407,6 +381,8 @@ prevT = curT;
     Serial.print("pid_output2");
     Serial.println(pid_output);
 */
+
+    
     pid_output_left = pid_output;  //Copy the controller output to the pid_output_left variable for the left motor
     pid_output_right =  pid_output; //Copy the controller output to the pid_output_right variable for the right motor
 
@@ -557,8 +533,10 @@ ISR(TIMER2_COMPA_vect)
         PORTD &= ~(1 << 6);
     ; //Set output 4 low because the pulse only has to last for 20us
 }
-
 #endif
+
+
+
 
 #if github_code
 /*
