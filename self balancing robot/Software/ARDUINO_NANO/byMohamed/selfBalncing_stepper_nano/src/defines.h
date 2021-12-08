@@ -1,9 +1,23 @@
 //choose what code you want to apply
 //Important >>
 //Hint:If motors stucked try to release wheel coupler screw
-#define test_stepper_PID_timers 1
+#define test_DC_PID_IMU 0
+#define test_DC_speed_direction 0
+#define test_stepper_PID_timers 0
 #define test_stepper_speed_timers 0//variable speed with timer
 #define test_stepper_PID 0//PID
 #define test_stepper_speed 0//variable speed with library
 #define test_stepper 0 //constant speed
-#define test_IMU 0 //suceeful
+#define test_IMU 1 //suceeful
+
+//right motor pins connected to arduino uno
+#define pwm_r 5
+#define in_r1 3
+#define in_r2 4
+//leftt motor pins connected to arduino uno
+#define pwm_l 6
+#define in_l3 7
+#define in_l4 8
+
+#define forward 1
+#define backward -1
