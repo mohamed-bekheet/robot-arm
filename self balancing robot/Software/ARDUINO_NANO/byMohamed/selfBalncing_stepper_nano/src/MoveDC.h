@@ -9,7 +9,7 @@ static int minSpeed = 60;  // to avoid vibrations in the motor without moving
 extern int speedR = 180;
 extern int speedL = 180;
 
-extern int speedT = 200; // total all wheels
+extern double speedT = 0; // total all wheels
 extern int speedC = 20;  // speed for curve movment
 
 int outR;
@@ -28,23 +28,29 @@ void init_motor_pins()
 void check_Boundries()
 {
   if (outR >= maxSpeed) outR = maxSpeed;
-  if (outR <= minSpeed) outR = minSpeed; // 0;
+  if (outR <= -maxSpeed) outR = maxSpeed; // 0;
   if (outL >= maxSpeed) outL = maxSpeed;
-  if (outL <= minSpeed) outL = minSpeed; // 0;
+  if (outL <= -maxSpeed) outL = maxSpeed; // 0;
 }
-
+void check_BoundriesOUT(float controlR,float controlL)
+{
+  if (controlR >= maxSpeed) controlR = maxSpeed;
+  if (controlR <= -maxSpeed) controlR = maxSpeed; // 0;
+  if (controlL >= maxSpeed) controlL = maxSpeed;
+  if (controlL <= -maxSpeed) controlL = maxSpeed; // 0;
+}
 void directionR(int dir)
 {
   // if positive or 0 move forward
   if (dir >= 0)
   {
-    digitalWrite(in_r1, HIGH);
-    digitalWrite(in_r2, LOW);
+    digitalWrite(in_r1, LOW);
+    digitalWrite(in_r2, HIGH);
   }
   else
   {
-    digitalWrite(in_r1, LOW);
-    digitalWrite(in_r2, HIGH);
+    digitalWrite(in_r1, HIGH);
+    digitalWrite(in_r2, LOW);
   }
 }
 
@@ -53,59 +59,23 @@ void directionL(int dir)
   // if positive or 0 move forward
   if (dir >= 0)
   {
-    digitalWrite(in_l3, HIGH);
-    digitalWrite(in_l4, LOW);
-  }
-  else
-  {
     digitalWrite(in_l3, LOW);
     digitalWrite(in_l4, HIGH);
   }
-}
-
-/*void movePID_dir()
-{
-  //get control signal from PID controller
-  //change wheel direction while turning in curve
-  directionR(controlOUT);
-  directionL(-controlOUT);
-
-  if (controlOUT || -controlOUT)
-  {
-    outR = speedR + controlOUT;
-    outL = speedL - controlOUT;
-  }
   else
   {
-    outR = speedR;
-    outL = speedL;
+    digitalWrite(in_l3, HIGH);
+    digitalWrite(in_l4, LOW);
   }
-  check_Boundries();
-  analogWrite(pwm_r, outR);
-  analogWrite(pwm_l, outL);
 }
-
-void movePID()
+void movePID(float ControlSignal)
 {
-  //get control signal from PID controller
-  directionR(controlOUT);
-  directionL(controlOUT);
-
-  if (controlOUT || -controlOUT)
-  {
-    outR = speedR + controlOUT;
-    outL = speedL - controlOUT;
-  }
-  else
-  {
-    outR = speedR;
-    outL = speedL;
-  }
-
-  check_Boundries();
-  analogWrite(pwm_r, outR);
-  analogWrite(pwm_l, outL);
-}*/
+  directionL(ControlSignal);
+  directionR(ControlSignal);
+  check_BoundriesOUT(ControlSignal,ControlSignal);
+  analogWrite(pwm_r, abs(ControlSignal));
+  analogWrite(pwm_l, abs(ControlSignal));
+}
 void moveF()
 {
   directionL(1);
