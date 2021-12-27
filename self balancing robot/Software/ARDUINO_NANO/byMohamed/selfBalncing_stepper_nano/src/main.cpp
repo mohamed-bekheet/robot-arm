@@ -2,7 +2,6 @@
 // choose what code you want to run from defines.h file write 1 for desied and 0 for others
 #include "defines.h"
 
-
 #if finalCode
  
 /*Arduino Self Balancing Robot
@@ -433,7 +432,6 @@ void loop()
 
 #endif
 
-
 #if test_IMU
 #include <Arduino.h>
 #include "I2Cdev.h"
@@ -578,7 +576,6 @@ void loop()
     }
 }
 #endif
-
 
 #if test_esp_code
 
