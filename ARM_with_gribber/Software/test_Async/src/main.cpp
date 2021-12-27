@@ -17,7 +17,8 @@ int servo1_start_angle = 0;
 int servo2_start_angle = 0;
 
 /**
- * @brief 
+ * @brief func
+ * 
  * 
  * @param pin1 
  * @param pin2 
