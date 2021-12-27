@@ -6,12 +6,13 @@
 static int maxSpeed = 160; // 140; //255
 static int minSpeed = 60;  // to avoid vibrations in the motor without moving
 
-extern int speedR = 180;
-extern int speedL = 180;
+extern int speedR = 0;
+extern int speedL = 0;
 
 extern double speedT = 0; // total all wheels
 extern int speedC = 20;  // speed for curve movment
-
+extern int speedControlR = 0;
+extern int speedControlL = 0;
 int outR;
 int outL;
 
@@ -80,29 +81,30 @@ void moveF()
 {
   directionL(1);
   directionR(1);
-  analogWrite(pwm_r, speedT);
-  analogWrite(pwm_l, speedT);
+  
+  analogWrite(pwm_r, abs( speedT+speedControlR));
+  analogWrite(pwm_l, abs( speedT+speedControlL));
 }
 void moveB()
 {
   directionL(-1);
   directionR(-1);
-  analogWrite(pwm_r, speedT);
-  analogWrite(pwm_l, speedT);
+  analogWrite(pwm_r,abs( speedR+speedControlR));
+  analogWrite(pwm_l,abs( speedL+speedControlL));
 }
 void moveR()
 {
   directionL(-1);
   directionR(1);
-  analogWrite(pwm_r, speedT + speedC);
-  analogWrite(pwm_l, speedT - speedC);
+  analogWrite(pwm_r, speedT);
+  analogWrite(pwm_l, speedT);
 }
 void moveL()
 {
   directionL(-1);
   directionR(1);
-  analogWrite(pwm_r, speedT - speedC);
-  analogWrite(pwm_l, speedT + speedC);
+  analogWrite(pwm_r, speedT);
+  analogWrite(pwm_l, speedT);
 }
 void Robot_stop()
 {
