@@ -13,9 +13,11 @@
 #include "I2Cdev.h"
 #include <PID_v1.h>                     //From https://github.com/br3ttb/Arduino-PID-Library/blob/master/PID_v1.h
 #include "MPU6050_6Axis_MotionApps20.h" //https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/MPU6050
+#if enable_esp
 #include <SoftwareSerial.h>
-
 SoftwareSerial espSerial(12, 11); // RX, TX
+String esp_message, sub_mess;
+#endif
 
 MPU6050 mpu;
 
@@ -140,7 +142,7 @@ void loop()
     {
         // meaasge example
         //" kp15."
-        String esp_message, sub_mess;
+        
         esp_message = espSerial.readStringUntil('*');
         sub_mess = esp_message.substring(2, esp_message.indexOf("*"));
         sub_mess.toFloat();
