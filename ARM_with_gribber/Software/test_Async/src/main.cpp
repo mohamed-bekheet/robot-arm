@@ -3,8 +3,12 @@
 int servo1_start_angle = 0;
 int servo2_start_angle = 0;
 
-// TaskHandle_t self_balancing_T;
- TaskHandle_t control_T;
+int  mode_state;
+bool button;
+
+TaskHandle_t control_T;
+TaskHandle_t automance_T;
+
 AsyncWebServer server(80);
 
 const char *ssid = "esp";
@@ -12,6 +16,9 @@ const char *password = "123456789";
 
 const char *PARAM_MESSAGE1 = "message1";
 const char *PARAM_MESSAGE2 = "message2";
+const char *PARAM_MODE = "mode";
+const char *PARAM_VOICE = "voice";
+
 int angle1, angle2;
 
 void notFound(AsyncWebServerRequest *request)
@@ -27,21 +34,8 @@ Servo servo2;
 const int servo1Pin = 4;
 const int servo2Pin = 5;
 
-/*void self_balancing( void * parameter ){
-  Serial.print("Task2 is running on core ");
-  Serial.println(xPortGetCoreID());
-    pinMode(32,OUTPUT);
-  for(;;){
-    digitalWrite(32, HIGH);
-    delay(1000);
-    digitalWrite(32, LOW);
-    delay(1000);
-    Serial.println("hi from task balanceing");
-  }
-}*/
-
 void control( void * parameter ){
-  Serial.print("Task2 is running on core ");
+  Serial.print("in control mode now");
   Serial.println(xPortGetCoreID());
   server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request)
           {
@@ -59,7 +53,16 @@ void control( void * parameter ){
           //servo2.write(angle2);
           Serial.print("angle2: ");
           Serial.println(angle2);
-      } else {
+      }
+      else if (request->hasParam(PARAM_VOICE)) {
+          message = request->getParam(PARAM_VOICE)->value();
+          Serial.println(message);
+      }
+      else if (request->hasParam(PARAM_MODE)) {
+          message = request->getParam(PARAM_MODE)->value();
+          mode_state=message.toInt();
+      }
+      else {
           message = "No message sent";
       }
       request->send(200, "text/plain", ", GET: " + message);});
@@ -68,11 +71,19 @@ void control( void * parameter ){
   }
   }
 
+void automance( void * parameter ){
+  Serial.print("automance is running on core ");
+  Serial.println(xPortGetCoreID());
+ for(;;){
+    vTaskDelay(10000);
+  }
+  }
+
 void setup()
 {
 
-  // xTaskCreatePinnedToCore(self_balancing,"self_balancing",10000,NULL,1,&self_balancing_T,1);
   xTaskCreatePinnedToCore(control,"control",10000,NULL,1,&control_T,1);
+  xTaskCreatePinnedToCore(automance,"automance",10000,NULL,1,&automance_T,1);
 
   Serial.begin(115200);
 
@@ -149,4 +160,14 @@ void setup()
 
 void loop()
 {
+ if(mode_state==1){ //automance mode on
+     vTaskSuspend(control_T);
+     vTaskResume(automance_T);
+     mode_state=0;
+  }
+  if(button==1){
+    vTaskSuspend(automance_T);
+     vTaskResume(control_T);
+    mode_state=0;
+    }
 }

@@ -31,28 +31,29 @@ void edit_param()
             Serial.print(server.argName(i));// Display the argument
             Serial.print(server.arg(i));
             Serial.print("*");
-            // if (server.argName(i) == "kp")
-            // {
-            //     String message = server.arg(i);
-            //     _kp = message.toFloat();
-            // }
-            // else if (server.argName(i) == "kd")  
-            // {
-            //     String message = server.arg(i);
-            //     _kd = message.toFloat();;
-                
-            // }
-            // else if (server.argName(i) == "ki")
-            // {
-                
-            //     String message = server.arg(i);
-            //     _ki = message.toFloat();
-                
-            // }
+            
 
         }
     }
     server.send(200,"text/html","ok");
+}
+void edit_direction() {
+
+  if (server.args() > 0) {
+  //Serial.print(server.args());
+  // Arguments were received
+  for (uint8_t i=0; i < server.args(); i++) {
+    //send it for arduino nano and it will handel it
+    Serial.print("");
+    Serial.print(server.argName(i)); // send to arduino the argument
+    Serial.print(server.arg(i));
+    Serial.print("*");
+  }
+  }
+
+server.send(200, "text/html", "ok");
+
+
 }
 
 // Set your Static IP address
@@ -71,7 +72,7 @@ void setup()
     // WiFiManager intialisation. Once completed there is no need to repeat the process on the current board
     WiFiManager wifiManager;
     //wifiManager.setSTAStaticIPConfig((192,168,1,8),(192,168,1,1),(255,255,0,0));
-  
+  //wifiManager.resetSettings();
     // New OOB ESP8266 has no Wi-Fi credentials so will connect and not need the next command to be uncommented and compiled in, a used one with incorrect credentials will
     // so restart the ESP8266 and connect your PC to the wireless access point called 'ESP8266_AP' or whatever you call it below in ""
     // wifiManager.resetSettings(); // Command to be included if needed, then connect to http://192.168.4.1/ and follow instructions to make the WiFi connection
@@ -104,6 +105,7 @@ void setup()
     Serial.println("/");
  
     server.on("/editParam",HTTP_GET, edit_param);
+    server.on("/editDirection", HTTP_GET, edit_direction);
 
 }
 

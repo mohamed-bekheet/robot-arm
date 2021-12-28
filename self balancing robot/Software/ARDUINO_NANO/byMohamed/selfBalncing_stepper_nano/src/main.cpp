@@ -15,7 +15,7 @@
 #include "MPU6050_6Axis_MotionApps20.h" //https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/MPU6050
 #include <SoftwareSerial.h>
 
-SoftwareSerial espSerial(10, 11); // RX, TX
+SoftwareSerial espSerial(12, 11); // RX, TX
 
 MPU6050 mpu;
 
@@ -44,6 +44,7 @@ double input, output;
 PID pid(&input, &speedT, &setpoint, Kp, Ki, Kd, DIRECT);
 
 volatile bool mpuInterrupt = false; // indicates whether MPU interrupt pin has gone high
+
 void dmpDataReady()
 {
     mpuInterrupt = true;
@@ -53,6 +54,7 @@ void setup()
 {
     Serial.begin(115200);
     espSerial.begin(115200);
+
 // join I2C bus (I2Cdev library doesn't do this automatically)
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
     Wire.begin();
@@ -113,6 +115,7 @@ void setup()
         // get expected DMP packet size for later comparison
         packetSize = mpu.dmpGetFIFOPacketSize();
 
+
         // setup PID
         pid.SetMode(AUTOMATIC);
         pid.SetSampleTime(10);
@@ -133,18 +136,6 @@ void setup()
 }
 void loop()
 {
-
-    // if programming failed, don't try to do anything
-    if (!dmpReady)
-        return;
-    if (mpu.dmpGetCurrentFIFOPacket(fifoBuffer))
-    { // Get the Latest packet
-        mpu.dmpGetQuaternion(&q, fifoBuffer);
-        mpu.dmpGetGravity(&gravity, &q);
-        mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-        input = ypr[1] * 180 / M_PI + 180;
-        // blink LED to indicate activity
-    }
     if (espSerial.available())
     {
         // meaasge example
@@ -182,14 +173,26 @@ void loop()
         }
     }
 
+    // if programming failed, don't try to do anything
+    if (!dmpReady)
+        return;
+    if (mpu.dmpGetCurrentFIFOPacket(fifoBuffer))
+    { // Get the Latest packet
+        mpu.dmpGetQuaternion(&q, fifoBuffer);
+        mpu.dmpGetGravity(&gravity, &q);
+        mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+
+        input = ypr[1] * 180 / M_PI + 180;
+    }
+
         // no mpu data - performing PID calculations and output to motors
         pid.Compute();
-
+#if debug
         // Print the value of Input and Output on serial monitor to check how it is working.
         Serial.print(input);
         Serial.print(" =>");
         Serial.println(speedT);
-        Serial.println(mpuInterrupt);
+#endif
 
         if (input > 140 && input < 230)
         { // If the Bot is falling
