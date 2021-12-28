@@ -3,7 +3,7 @@
 #include "defines.h"
 
 #if finalCode
- 
+
 /*Arduino Self Balancing Robot
  * Code by: B.Aswinth Raj
  * Build on top of Lib: https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/MPU6050
@@ -35,9 +35,9 @@ float ypr[3];        // [yaw, pitch, roll]   yaw/pitch/roll container and gravit
 /*********Tune these 4 values for your BOT*********/
 double setpoint = 180; // set the value when the bot is perpendicular to ground using serial monitor.
 // Read the project documentation on circuitdigest.com to learn how to set these values
-double Kp = 21;//20;//20 ;//21;  // Set this first
-double Kd = 0.8;//0.6;//0.5 ;//0.8; // Set this secound
-double Ki = 90;//70;//0; //140; // Finally set this
+double Kp = 21;  // 20;//20 ;//21;  // Set this first
+double Kd = 0.8; // 0.6;//0.5 ;//0.8; // Set this secound
+double Ki = 90;  // 70;//0; //140; // Finally set this
 /******End of values setting*********/
 
 double input, output;
@@ -52,7 +52,9 @@ void dmpDataReady()
 
 void setup()
 {
+    #if serial_debug
     Serial.begin(115200);
+    #endif
     espSerial.begin(115200);
 
 // join I2C bus (I2Cdev library doesn't do this automatically)
@@ -90,15 +92,14 @@ void setup()
     mpu.setZGyroOffset(30);
     mpu.setZAccelOffset(855);
 
-
     // make sure it worked (returns 0 if so)
     if (devStatus == 0)
     {
-       // Calibration Time: generate offsets and calibrate our MPU6050
+        // Calibration Time: generate offsets and calibrate our MPU6050
         mpu.CalibrateAccel(6);
         mpu.CalibrateGyro(6);
         mpu.PrintActiveOffsets();
-        
+
         // turn on the DMP, now that it's ready
         Serial.println(F("Enabling DMP..."));
         mpu.setDMPEnabled(true);
@@ -114,7 +115,6 @@ void setup()
 
         // get expected DMP packet size for later comparison
         packetSize = mpu.dmpGetFIFOPacketSize();
-
 
         // setup PID
         pid.SetMode(AUTOMATIC);
@@ -145,31 +145,35 @@ void loop()
         sub_mess = esp_message.substring(2, esp_message.indexOf("*"));
         sub_mess.toFloat();
 
-        
-        if (esp_message.startsWith("S")) {
+        if (esp_message.startsWith("S"))
+        { // stop moving
             setpoint = 180;
-            speedControlR=0;
-            speedControlL=0;
+            speedControlR = 0;
+            speedControlL = 0;
         }
-        else if (esp_message.startsWith("F")) {
+        else if (esp_message.startsWith("F"))
+        { // move forward
             setpoint = 182;
-            speedControlR=0;
-            speedControlL=0;
+            speedControlR = 0;
+            speedControlL = 0;
         }
-        else if (esp_message.startsWith("B")) {
+        else if (esp_message.startsWith("B"))
+        { // move backward
             setpoint = 178;
-            speedControlR=0;
-            speedControlL=0;
+            speedControlR = 0;
+            speedControlL = 0;
         }
-        else if (esp_message.startsWith("R")) {
+        else if (esp_message.startsWith("R"))
+        { // rotate right
             setpoint = 180;
-            speedControlR=-10;
-            speedControlL=10;
+            speedControlR -= 10;
+            speedControlL += 10;
         }
-        else if (esp_message.startsWith("L")) {
+        else if (esp_message.startsWith("L"))
+        {
             setpoint = 180;
-            speedControlR=10;
-            speedControlL=-10;
+            speedControlR += 10;
+            speedControlL -= 10;
         }
     }
 
@@ -185,25 +189,29 @@ void loop()
         input = ypr[1] * 180 / M_PI + 180;
     }
 
-        // no mpu data - performing PID calculations and output to motors
-        pid.Compute();
-#if debug
-        // Print the value of Input and Output on serial monitor to check how it is working.
-        Serial.print(input);
-        Serial.print(" =>");
-        Serial.println(speedT);
+    // no mpu data - performing PID calculations and output to motors
+    pid.Compute();
+#if serial_debug
+    // Print the value of Input and Output on serial monitor to check how it is working.
+    Serial.print("esp meassage");
+    Serial.println(esp_message);
+    Serial.print(input);
+    Serial.print(" =>");
+    Serial.print(setpoint);
+    Serial.print(" =>");
+    Serial.print(speedControlR);
+    Serial.print(" =>");
+    Serial.print(speedControlL);
+    Serial.print(" =>");
+    Serial.println(speedT);
 #endif
 
-        if (input > 140 && input < 230)
-        { // If the Bot is falling
-          
-            if (speedT > 0)      // Falling towards front
-                moveF();         // Rotate the wheels forward
-            else if (speedT < 0) // Falling towards back
-                moveB();         // Rotate the wheels backward
-        }
-        else              // If Bot not falling
-            Robot_stop(); // Hold the wheels still
+    if (input > 130 && input < 230)
+     // If the Bot is falling
+        movePID(speedT, speedControlR, speedControlL);
+    
+    else              // If Bot not falling
+        Robot_stop(); // Hold the wheels still
 }
 #endif
 
@@ -423,6 +431,7 @@ void loop()
 void setup()
 {
     init_motor_pins();
+    speedT = 200;
 }
 void loop()
 {

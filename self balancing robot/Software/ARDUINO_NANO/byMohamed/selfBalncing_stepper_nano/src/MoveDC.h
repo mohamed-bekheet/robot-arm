@@ -69,13 +69,12 @@ void directionL(int dir)
     digitalWrite(in_l4, LOW);
   }
 }
-void movePID(float ControlSignal)
+void movePID(double PIDSignal,double controlSignalR,double controlSignalL)
 {
-  directionL(ControlSignal);
-  directionR(ControlSignal);
-  check_BoundriesOUT(ControlSignal,ControlSignal);
-  analogWrite(pwm_r, abs(ControlSignal));
-  analogWrite(pwm_l, abs(ControlSignal));
+  directionL(PIDSignal);
+  directionR(PIDSignal);
+  analogWrite(pwm_r, abs(PIDSignal+controlSignalR));
+  analogWrite(pwm_l, abs(PIDSignal+controlSignalL));
 }
 void moveF()
 {
@@ -84,13 +83,14 @@ void moveF()
   
   analogWrite(pwm_r, abs( speedT+speedControlR));
   analogWrite(pwm_l, abs( speedT+speedControlL));
+
 }
 void moveB()
 {
   directionL(-1);
   directionR(-1);
-  analogWrite(pwm_r,abs( speedR+speedControlR));
-  analogWrite(pwm_l,abs( speedL+speedControlL));
+  analogWrite(pwm_r, abs( speedT+speedControlR));
+  analogWrite(pwm_l, abs( speedT+speedControlL));
 }
 void moveR()
 {
