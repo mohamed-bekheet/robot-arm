@@ -4,15 +4,10 @@
 
 #if finalCode
 
-/*Arduino Self Balancing Robot
- * Code by: B.Aswinth Raj
- * Build on top of Lib: https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/MPU6050
- * Website: circuitdigest.com
- */
 #include "MoveDC.h"
 #include "I2Cdev.h"
-#include <PID_v1.h>                     //From https://github.com/br3ttb/Arduino-PID-Library/blob/master/PID_v1.h
-#include "MPU6050_6Axis_MotionApps20.h" //https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/MPU6050
+#include <PID_v1.h>                    
+#include "MPU6050_6Axis_MotionApps20.h" 
 #if enable_esp
 #include <SoftwareSerial.h>
 SoftwareSerial espSerial(12, 11); // RX, TX
@@ -55,9 +50,11 @@ void dmpDataReady()
 void setup()
 {
     #if serial_debug
-    Serial.begin(115200);
+    Serial.begin(9600);
     #endif
+    #if enable_esp
     espSerial.begin(115200);
+    #endif
 
 // join I2C bus (I2Cdev library doesn't do this automatically)
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
@@ -138,6 +135,7 @@ void setup()
 }
 void loop()
 {
+    #if enable_esp
     if (espSerial.available())
     {
         // meaasge example
@@ -178,6 +176,7 @@ void loop()
             speedControlL -= 10;
         }
     }
+    #endif
 
     // if programming failed, don't try to do anything
     if (!dmpReady)
@@ -193,7 +192,14 @@ void loop()
 
     // no mpu data - performing PID calculations and output to motors
     pid.Compute();
-#if serial_debug
+
+    if (input > 130 && input < 230)
+     // If the Bot is falling
+        movePID(speedT, speedControlR, speedControlL);
+    
+    else              // If Bot not falling
+        Robot_stop(); // Hold the wheels still
+        #if serial_debug
     // Print the value of Input and Output on serial monitor to check how it is working.
     Serial.print("esp meassage");
     Serial.println(esp_message);
@@ -208,12 +214,6 @@ void loop()
     Serial.println(speedT);
 #endif
 
-    if (input > 130 && input < 230)
-     // If the Bot is falling
-        movePID(speedT, speedControlR, speedControlL);
-    
-    else              // If Bot not falling
-        Robot_stop(); // Hold the wheels still
 }
 #endif
 
