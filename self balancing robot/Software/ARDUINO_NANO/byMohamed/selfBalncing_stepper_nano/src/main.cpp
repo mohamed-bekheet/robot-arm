@@ -197,8 +197,8 @@ void loop()
      // If the Bot is falling
         movePID(speedT, speedControlR, speedControlL);
     
-    else              // If Bot not falling
-        Robot_stop(); // Hold the wheels still
+    else              // If Bot falling
+        Robot_stop(); // Hold the wheels
         #if serial_debug
     // Print the value of Input and Output on serial monitor to check how it is working.
     Serial.print("esp meassage");
